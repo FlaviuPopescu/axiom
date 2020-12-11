@@ -15,4 +15,4 @@ function notifyOSX {
   osascript -e "display notification \"$2\" with title \"$1\""
 }
 
-if [ $BASEOS == "Darwin" ]; then NOTIFY_CMD=notifyOSX; fi
+if [ "$BASEOS" == "Darwin" ]; then NOTIFY_CMD=notifyOSX; fi

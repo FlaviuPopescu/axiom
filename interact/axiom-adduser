@@ -9,9 +9,9 @@ username="$1"
 
 command="curl -s https://github.com/$username.keys >> ~/.ssh/authorized_keys"
 
-$AXIOM_PATH/interact/axiom-ssh --just-generate
+"$AXIOM_PATH"/interact/axiom-ssh --just-generate
 
 for instance in $instances
 do
-	 $AXIOM_PATH/interact/axiom-exec "$command" "$instance" --cache 
+	 "$AXIOM_PATH"/interact/axiom-exec "$command" "$instance" --cache 
 done

@@ -28,8 +28,8 @@ msg() {
     chat_id=$(cat /home/op/.telegram.json | jq -r .chat_id)
     msg="$1"
 
-    ans=$(curl -s -X POST -H 'Content-Type: application/json' -d "{\"chat_id\": \"$chat_id\", \"text\": \"$msg\"}" https://api.telegram.org/bot$bot_id/sendMessage)
-    username=$(echo $ans | jq -r '.result.chat.username')
+    ans=$(curl -s -X POST -H 'Content-Type: application/json' -d "{\"chat_id\": \"$chat_id\", \"text\": \"$msg\"}" https://api.telegram.org/bot"$bot_id"/sendMessage)
+    username=$(echo "$ans" | jq -r '.result.chat.username')
     echo -e "${BGreen}Message sent to '$username'!"
 }
 

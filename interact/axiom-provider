@@ -10,7 +10,7 @@ SRC_FUNCTIONS="$AXIOM_PATH/interact/includes/functions.sh"
 options=$(ls -l "$INCLUDE_PATH" | grep "\-functions.sh" | awk '{ print $9 }' | sed 's/\-functions\.sh//g')
 choice=false
 
-if [ ! -z $1 ]
+if [ ! -z "$1" ]
 then
 	choice="$1"
 fi
@@ -28,5 +28,5 @@ then
 		echo -e "${BGreen}Provider set successfully${Color_Off}"
 	fi
 else
-	echo $options | tr ' ' '\n'
+	echo "$options" | tr ' ' '\n'
 fi

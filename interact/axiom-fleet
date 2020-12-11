@@ -18,11 +18,11 @@ function help() {
 gen_name=""
 provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
-if [ -z $1 ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
+if [ -z "$1" ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
 then
     gen_name="${names[$RANDOM % ${#names[@]} ]}"
 else
-    if [ ! -z $1 ]
+    if [ ! -z "$1" ]
     then
         gen_name="$1"
     fi
@@ -85,15 +85,15 @@ fi
 
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
 total_spend_per_instance_rounded="0"
-slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
+slug=$(cat "$AXIOM_PATH"/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 
 price_hourly=0
 if [[ "$provider" == "do" ]]; then
 	sizes=$(instance_sizes)
-	instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
-	price_hourly=$(echo $instance_data | jq .price_hourly)
+	instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
+	price_hourly=$(echo "$instance_data" | jq .price_hourly)
 elif [[ "$provider" == "azure" ]]; then
-	price_hourly=$(cat $AXIOM_PATH/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
+	price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
 fi
 
 if [[ "$provider" == "do" ]] | [[ "$provider" == "azure" ]];
@@ -119,8 +119,8 @@ fi
 
 image_id=""
 image_name=""
-image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
-region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
+image="$(jq -r '.image' "$AXIOM_PATH"/axiom.json)"
+region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 
 if [[ "$image" != "null" ]]
 then
@@ -172,7 +172,7 @@ do
 		args="--uregion=${regions_to_cycle[o]}"	
 	fi
 	
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
+   "$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size="$slug" --expire="$expiry" --image_id="$image_id" "$args" --no-select &
    sleep 0.5
    o=$((o+1))
 done
@@ -183,6 +183,6 @@ while [ $time -gt 0 ]; do
     : $((time--))
 done
 
-$AXIOM_PATH/interact/axiom-select "$gen_name*"
+"$AXIOM_PATH"/interact/axiom-select "$gen_name*"
 
 echo -e "${BGreen}Fleet started succesfully!\nTo delete your fleet, just run '${Blue}axiom-rm \"$gen_name*\" -f${BGreen}'${Color_Off}"

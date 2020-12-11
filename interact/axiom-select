@@ -5,4 +5,4 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
 [[ ! -z "$1" ]] && query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"
-echo -e "${BWhite}Selected: ${Color_Off}[${Blue} "$(cat $AXIOM_PATH/selected.conf | sed 's/\n/ /g') ${Color_Off}]""
+echo -e "${BWhite}Selected: ${Color_Off}[${Blue} "$(cat "$AXIOM_PATH"/selected.conf | sed 's/\n/ /g') "${Color_Off}"]""

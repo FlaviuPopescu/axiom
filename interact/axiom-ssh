@@ -16,19 +16,19 @@ args="-F $ssh_config"
 
 for var in "$@"
 do
-    if [ $var == "--tmux" ]
+    if [ "$var" == "--tmux" ]
     then
         use_tmux=true
     elif [[ $var =~ "-t=" ]]
     then
 		tmux_session="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-    elif [ $var == "--cache" ]
+    elif [ "$var" == "--cache" ]
 	then
 		cache=true
-	elif [ $var == "--just-generate" ]
+	elif [ "$var" == "--just-generate" ]
 	then
 		just_generate=true
-	elif [ $var == "-m" ]
+	elif [ "$var" == "-m" ]
 	then
 		use_mosh=true
 	else
@@ -59,7 +59,7 @@ then
 	done
 	cmd="mosh --ssh='ssh $new_args' $1 -- tmux attach -t $tmux_session -d"
 
-	echo $cmd
+	echo "$cmd"
 else
 	cmd="ssh $args"
 fi

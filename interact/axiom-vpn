@@ -15,5 +15,5 @@ fi
 
 vpn_dst="/tmp/$name.ovpn"
 #ip="$(instance_ip $name)"
-$AXIOM_PATH/interact/axiom-scp "$name":/home/op/vpn/client.ovpn $vpn_dst
-sudo openvpn $vpn_dst
+"$AXIOM_PATH"/interact/axiom-scp "$name":/home/op/vpn/client.ovpn "$vpn_dst"
+sudo openvpn "$vpn_dst"

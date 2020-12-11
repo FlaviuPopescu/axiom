@@ -5,7 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
 droplets=$(instances)
-selected=$(cat $AXIOM_PATH/selected.conf)
+selected=$(cat "$AXIOM_PATH"/selected.conf)
 quiet=false
 query=""
 args=""
@@ -51,11 +51,11 @@ then
     exit 0
 fi
 
-total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+total=$(echo "$selected" | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 cmds_file="$AXIOM_PATH/tmp/$RANDOM-cmd.txt"
 full=""
 
-touch $cmds_file
+touch "$cmds_file"
 
 i=1
 for name in $selected
@@ -66,10 +66,10 @@ do
     fi
 
     cmd="$1"
-    rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
+    rendered=$(echo "$cmd" | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
 
     full="ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
-    echo "$full" >> $cmds_file
+    echo "$full" >> "$cmds_file"
 	
     i=$((i+1))
 done
@@ -89,4 +89,4 @@ else
 	bash -c "$full"
 fi
 
-rm $cmds_file
+rm "$cmds_file"

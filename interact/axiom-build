@@ -7,7 +7,7 @@ builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner="full"
 start_time=$(date +%s)
 
-if [ ! -z $1 ]
+if [ ! -z "$1" ]
 then
 	provisioner="$1"
 fi
@@ -44,12 +44,12 @@ echo -e "${BWhite}Building image $provisioner for provider $builder... This can 
 if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" "$image_path";
 then
 	end_time=$(date +%s)
-	seconds="$(expr $end_time - $start_time)"
+	seconds="$(expr "$end_time" - "$start_time")"
 	time=""
 		
 	if [[ "$seconds" -gt 59 ]]
 	then
-		minutes=$(expr $seconds / 60)
+		minutes=$(expr "$seconds" / 60)
 		time="$minutes minutes"
 	else
 		time="$seconds seconds"

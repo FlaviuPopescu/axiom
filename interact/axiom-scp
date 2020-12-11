@@ -11,7 +11,7 @@ args=""
 i=0
 for var in "$@"
 do
-    if [ $var == "--cache" ]
+    if [ "$var" == "--cache" ]
 	then
 		cache=true
 	else
@@ -25,11 +25,11 @@ then
 	generate_sshconfig
 fi
 
-echo -n "" > $AXIOM_PATH/tmp/cmds.txt
+echo -n "" > "$AXIOM_PATH"/tmp/cmds.txt
 
 for var in $args
 do
-	host=$(echo $var | cut -d ":" -f 1)
+	host=$(echo "$var" | cut -d ":" -f 1)
 	if [[ "$host" =~ "*" ]]
 	then
 		instances=$(query_instances_cache "$host")
@@ -58,7 +58,7 @@ do
 line=""
 for var in $args
 do
-	host=$(echo $var | cut -d ":" -f 1)
+	host=$(echo "$var" | cut -d ":" -f 1)
 	str=""
 	if [[ "$host" =~ "*" ]]
 	then
@@ -78,7 +78,7 @@ do
 		fi
 	fi
 
-	str=$(echo $str | sed "s/\$name/$instance/g")
+	str=$(echo "$str" | sed "s/\$name/$instance/g")
 
 	if [ "$line" ]
 	then
@@ -89,12 +89,12 @@ do
 done
 ssh_conf="$AXIOM_PATH/.sshconfig"
 cmd="rsync -e 'ssh -o StrictHostKeyChecking=no -F $ssh_conf' -azr --progress $line"
-echo "$cmd" >> $AXIOM_PATH/tmp/cmds.txt
+echo "$cmd" >> "$AXIOM_PATH"/tmp/cmds.txt
 #scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
 done
 #sleep 1
 echo -e "${BGreen}Running parallel file transfer...${Color_Off}"
-interlace -t NULL -cL $AXIOM_PATH/tmp/cmds.txt
+interlace -t NULL -cL "$AXIOM_PATH"/tmp/cmds.txt
 else
-	rsync -e "ssh -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig"  -avzr --progress $args
+	rsync -e "ssh -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig"  -avzr --progress "$args"
 fi

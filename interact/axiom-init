@@ -28,7 +28,7 @@ other_commands() {
     printf "\rExiting..."
     echo "Cleaning up created resources..."
     kill -9  "$PID"
-    $AXIOM_PATH/interact/axiom-rm $gen_name -f
+    "$AXIOM_PATH"/interact/axiom-rm "$gen_name" -f
 	echo "Thank you for using axiom :) - @pry0cc"
 	exit
 }
@@ -37,7 +37,7 @@ trap 'other_commands' SIGINT
 
 if [[ "$provider" == "do" ]]; then
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
-if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
+if [ "$BASEOS" == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
 
 if ! command -v doctl &> /dev/null
 then
@@ -59,9 +59,9 @@ then
 fi
 
 gen_name="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
-region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
-size="$(jq -r '.default_size' $AXIOM_PATH/axiom.json)"
-image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
+region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
+size="$(jq -r '.default_size' "$AXIOM_PATH"/axiom.json)"
+image="$(jq -r '.image' "$AXIOM_PATH"/axiom.json)"
 
 box_name=""
 connect_shell=false
@@ -196,7 +196,7 @@ waitabit() {
 boot_script="$AXIOM_PATH/tmp/$name.sh"
 
 mkdir -p "$AXIOM_PATH/tmp/"
-cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" > "$boot_script"
+cat "$AXIOM_PATH"/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" > "$boot_script"
 chmod +x "$boot_script"
 
 if [ -z "$image_id" ]; then
@@ -234,7 +234,7 @@ ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 rm "$boot_script"
 
 if [[ "$no_select" != "true" ]]; then
-	echo "$name" > $AXIOM_PATH/selected.conf
+	echo "$name" > "$AXIOM_PATH"/selected.conf
 fi
 
 if [[ "$no_select" != "true" ]]; then
@@ -250,12 +250,12 @@ axiom-exec "touch /tmp/.connected" "$name" -q >> /dev/null 2>&1
 
 if [ "$restore" != false ]; then
 	#echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
-	$AXIOM_PATH/interact/axiom-restore "$restore" "$name"
+	"$AXIOM_PATH"/interact/axiom-restore "$restore" "$name"
 fi
 
 if [ "$deploy" != false ]; then
 	#echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
-	$AXIOM_PATH/interact/axiom-deploy "$deploy"
+	"$AXIOM_PATH"/interact/axiom-deploy "$deploy"
 fi
 
 #if [ "$domain" != false ]; then
@@ -263,5 +263,5 @@ fi
 #	$AXIOM_PATH/interact/axiom-dns add $name $domain $ip
 #fi
 
-$AXIOM_PATH/interact/header.sh
+"$AXIOM_PATH"/interact/header.sh
 

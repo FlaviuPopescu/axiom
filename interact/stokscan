@@ -2,7 +2,7 @@
 
 company="amazon"
 
-if [ ! -z $1 ]
+if [ ! -z "$1" ]
 then
 	company="$1"
 fi

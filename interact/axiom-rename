@@ -10,12 +10,12 @@ if [[ $# -ne 2 ]]; then
 else
 	droplet="$1"
 	new_name="$2"
-	droplet_id=$(instance_id $droplet)
+	droplet_id=$(instance_id "$droplet")
 	if [[ -z $droplet_id ]]; then
 		echo "Droplet $droplet doesn't exist"
 	else
-		ip="$(instance_ip $droplet)"
-		result=$(doctl compute droplet-action rename $droplet_id --droplet-name $new_name)
+		ip="$(instance_ip "$droplet")"
+		result=$(doctl compute droplet-action rename "$droplet_id" --droplet-name "$new_name")
 		ssh -p2266 op@"$ip" "sudo hostname $new_name" >/dev/null 2>&1
 	fi
 fi

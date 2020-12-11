@@ -6,11 +6,11 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 
 gen_name=""
 
-if [ -z $1 ] || [[ $1 =~ "-t" ]] || [[ $1 =~ "time" ]] || [[ $1 =~ "spend" ]]
+if [ -z "$1" ] || [[ $1 =~ "-t" ]] || [[ $1 =~ "time" ]] || [[ $1 =~ "spend" ]]
 then
     gen_name="${names[$RANDOM % ${#names[@]} ]}"
 else
-    if [ ! -z $1 ]
+    if [ ! -z "$1" ]
     then
         gen_name="$1"
     fi
@@ -64,15 +64,15 @@ fi
 sizes=$(instance_sizes)
 spend_per_hour=$(bc <<< "scale=2; $spend/$hours")
 multi_instance_spend=$(bc <<< "scale=2; $spend_per_hour / $amount")
-slug=$(echo $sizes | jq -r ".[] | select(.price_hourly < $multi_instance_spend) | .slug" | tail -n 1)
+slug=$(echo "$sizes" | jq -r ".[] | select(.price_hourly < $multi_instance_spend) | .slug" | tail -n 1)
 echo -e "${Green}Calculated your target hourly spend per instance at: \$$multi_instance_spend per hour${Color_Off}"
 echo -e "${Green}Calculated your target hourly spend total at: \$$spend_per_hour per hour${Color_Off}"
-instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
-cores=$(echo $instance_data | jq .vcpus)
-mem_big=$(echo $instance_data | jq .memory)
-price_hourly=$(echo $instance_data | jq .price_hourly)
-mem=$(expr $mem_big / 1024)
-disk=$(echo $instance_data | jq .disk)
+instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")")
+cores=$(echo "$instance_data" | jq .vcpus)
+mem_big=$(echo "$instance_data" | jq .memory)
+price_hourly=$(echo "$instance_data" | jq .price_hourly)
+mem=$(expr "$mem_big" / 1024)
+disk=$(echo "$instance_data" | jq .disk)
 total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
 echo -e "${BWhite}Selected $slug, with $cores cores, $mem GB of RAM and $disk GB HDD, $price_hourly/h"
 echo -e "${BWhite}To run $amount instance/s with the above specs for $hours hours, it would cost a total of \$$total"
@@ -89,11 +89,11 @@ expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
 
 
-for i in $(seq -f "%02g" 1 $amount)
+for i in $(seq -f "%02g" 1 "$amount")
 do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost exactly \$$total_spend_per_instance"
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry &
+   "$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size="$slug" --expire="$expiry" &
    sleep 0.3
 done
 

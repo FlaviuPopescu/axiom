@@ -2,5 +2,5 @@
 
 AXIOM_PATH="$HOME/.axiom"
 
-ans="$(cat $AXIOM_PATH/selected.conf)"
-axiom-ssh $ans
+ans="$(cat "$AXIOM_PATH"/selected.conf)"
+axiom-ssh "$ans"

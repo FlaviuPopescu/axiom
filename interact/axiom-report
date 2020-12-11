@@ -8,7 +8,7 @@ source "$AXIOM_PATH/interact/includes/appliance.sh"
 (echo "Instance,IP,City,Country,Latitude,Longitude"
 for instance in $(cat "$AXIOM_PATH/selected.conf")
 do
-	ip="$(instance_ip_cache $instance)"
+	ip="$(instance_ip_cache "$instance")"
 	data="$(curl -s "https://ipinfo.io/$ip")"
 	city="$(echo "$data" | jq -r '.city')"
 	loc="$(echo "$data" | jq -r '.loc')"

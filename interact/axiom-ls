@@ -5,7 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
 
-if [ -z $1 ]; then
+if [ -z "$1" ]; then
 	instance_pretty
 else
 	if [[ "$1" == "--json" ]]; then
@@ -16,7 +16,7 @@ else
 		pretty_appliances
 	else
 		resp=$(query_instances "$1")
-		count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+		count=$(echo "$resp" | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 
 		if [[ "$count" -gt 1 ]]; then
 			i=1
@@ -30,4 +30,4 @@ else
 	fi
 fi
 
-$AXIOM_PATH/interact/header.sh
+"$AXIOM_PATH"/interact/header.sh

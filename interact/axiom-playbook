@@ -141,26 +141,26 @@ done
 counter=0
 for i in $(cat "$playbooks/$module");
 do 
-    command="$(echo $i | awk '{ print $1 }')"
+    command="$(echo "$i" | awk '{ print $1 }')"
 
     if [[ "$command" == "cat" ]]; then
-        echo "$i > $((counter+1))" >> $tmp/cmds.sh
+        echo "$i > $((counter+1))" >> "$tmp"/cmds.sh
     elif [[ "$(module_exist "$command")" -eq 1 ]]; then
         #        echo "MODULE EXISTS $command"
         if [[ "$((counter+1))" -eq "$total" ]]; then
-            echo "axiom-scan $counter -m $i  --quiet $out_flag $((counter+1)) " >> $tmp/cmds.sh
+            echo "axiom-scan $counter -m $i  --quiet $out_flag $((counter+1)) " >> "$tmp"/cmds.sh
         else
-            echo "axiom-scan $counter -m $i  --quiet -o $((counter+1)) " >> $tmp/cmds.sh
+            echo "axiom-scan $counter -m $i  --quiet -o $((counter+1)) " >> "$tmp"/cmds.sh
         fi
     else
-        echo "echo 'Command: [ $i ]'" >> $tmp/cmds.sh
-        echo "cat $counter | $i > $((counter+1))" >> $tmp/cmds.sh
+        echo "echo 'Command: [ $i ]'" >> "$tmp"/cmds.sh
+        echo "cat $counter | $i > $((counter+1))" >> "$tmp"/cmds.sh
     fi
     counter=$((counter+1))
 done
 
 chmod +x "$tmp/cmds.sh"
-cp $input "$tmp/input"
+cp "$input" "$tmp/input"
 start=$(pwd)
 cd "$tmp"
 echo ""

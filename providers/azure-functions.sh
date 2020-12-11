@@ -37,7 +37,7 @@ instance_menu() {
 quick_ip() {
 	data="$1"
 	ip=$(az vm list-ip-addresses | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress")
-	echo $ip
+	echo "$ip"
 }
 
 # create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)
@@ -61,17 +61,17 @@ instance_pretty() {
 	(i=0
 	echo '"Instance","IP","Size","Region","$M"'
 
-	for instance in $(echo $data | jq -c '.[].virtualMachine');
+	for instance in $(echo "$data" | jq -c '.[].virtualMachine');
 	do
 		#echo $instance
-		name=$(echo $instance | jq -r '.name')
-		size=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .hardwareProfile.vmSize")
-		region=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .location")
-		price_monthly=$(cat $AXIOM_PATH/pricing/azure.json | jq -r ".[].costs[] | select(.id==\"$size\") | .firstParty[].meters[].amount")
+		name=$(echo "$instance" | jq -r '.name')
+		size=$(echo "$extra_data" | jq -r ".[] | select(.name==\"$name\") | .hardwareProfile.vmSize")
+		region=$(echo "$extra_data" | jq -r ".[] | select(.name==\"$name\") | .location")
+		price_monthly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq -r ".[].costs[] | select(.id==\"$size\") | .firstParty[].meters[].amount")
 		i=$(echo "$i+$price_monthly" | bc -l)
 
-		data=$(echo $instance | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".price_monthly=\"$price_monthly\"")
-		echo $data | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region,.price_monthly] | @csv'
+		data=$(echo "$instance" | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".price_monthly=\"$price_monthly\"")
+		echo "$data" | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region,.price_monthly] | @csv'
 	done
 
 	echo "\"_\",\"_\",\"_\",\"Total\",\"\$$i\"") | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
@@ -89,9 +89,9 @@ selected_instance() {
 get_image_id() {
 	query="$1"
 	images=$(az image list)
-	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
-	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
-	echo $id
+	name=$(echo "$images" | jq -r ".[].name" | grep "$query" | tail -n 1)
+	id=$(echo "$images" |  jq -r ".[] | select(.name==\"$name\") | .id")
+	echo "$id"
 }
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
@@ -134,17 +134,17 @@ delete_snapshot() {
 
 msg_success() {
 	echo -e "${BGreen}$1${Color_Off}"
-	echo "SUCCESS $(date):$1" >> $LOG
+	echo "SUCCESS $(date):$1" >> "$LOG"
 }
 
 msg_error() {
 	echo -e "${BRed}$1${Color_Off}"
-	echo "ERROR $(date):$1" >> $LOG
+	echo "ERROR $(date):$1" >> "$LOG"
 }
 
 msg_neutral() {
 	echo -e "${Blue}$1${Color_Off}"
-	echo "INFO $(date): $1" >> $LOG
+	echo "INFO $(date): $1" >> "$LOG"
 }
 
 # takes any number of arguments, each argument should be an instance or a glob, say 'omnom*', returns a sorted list of instances based on query
@@ -158,7 +158,7 @@ query_instances() {
 		if [[ "$var" =~ "*" ]]
 		then
 			var=$(echo "$var" | sed 's/*/.*/g')
-			selected="$selected $(echo $droplets | jq -r '.[].virtualMachine.name' | grep "$var")"
+			selected="$selected $(echo "$droplets" | jq -r '.[].virtualMachine.name' | grep "$var")"
 		else
 			if [[ $query ]];
 			then
@@ -171,7 +171,7 @@ query_instances() {
 
 	if [[ "$query" ]]
 	then
-		selected="$selected $(echo $droplets | jq -r '.[].virtualMachine.name' | grep -w "$query")"
+		selected="$selected $(echo "$droplets" | jq -r '.[].virtualMachine.name' | grep -w "$query")"
 	else
 		if [[ ! "$selected" ]]
 		then
@@ -181,7 +181,7 @@ query_instances() {
 	fi
 
 	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
-	echo -n $selected
+	echo -n "$selected"
 }
 
 query_instances_cache() {
@@ -214,20 +214,20 @@ query_instances_cache() {
 	fi
 
 	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
-	echo -n $selected
+	echo -n "$selected"
 }
 
 # take no arguments, generate a SSH config from the current Digitalocean layout
 generate_sshconfig() {
 	boxes="$(az vm list-ip-addresses)"
-	echo -n "" > $AXIOM_PATH/.sshconfig.new
+	echo -n "" > "$AXIOM_PATH"/.sshconfig.new
 
 	for name in $(echo "$boxes" | jq -r '.[].virtualMachine.name')
 	do 
 		ip=$(echo "$boxes" | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress")
-		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> "$AXIOM_PATH"/.sshconfig.new
 	done
-	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	mv "$AXIOM_PATH"/.sshconfig.new "$AXIOM_PATH"/.sshconfig
 	
 	if [ "$key" != "null" ]
 	then
@@ -269,7 +269,7 @@ list_domains() {
 list_subdomains() {
     domain="$1"
 
-    doctl compute domain records list $domain -o json | jq '.[]'
+    doctl compute domain records list "$domain" -o json | jq '.[]'
 }
 # get JSON data for snapshots
 
@@ -277,21 +277,21 @@ delete_record() {
     domain="$1"
     id="$2"
 
-    doctl compute domain records delete $domain $id
+    doctl compute domain records delete "$domain" "$id"
 }
 
 delete_record_force() {
     domain="$1"
     id="$2"
 
-    doctl compute domain records delete $domain $id -f
+    doctl compute domain records delete "$domain" "$id" -f
 }
 add_dns_record() {
     subdomain="$1"
     domain="$2"
     ip="$3"
 
-    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
+    doctl compute domain records create "$domain" --record-type A --record-name "$subdomain" --record-data "$ip"
 }
 
 

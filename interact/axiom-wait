@@ -5,7 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
 droplets=$(instances)
-instance=$(cat $AXIOM_PATH/selected.conf)
+instance=$(cat "$AXIOM_PATH"/selected.conf)
 command="$1"
 
 if [ ! -z "$2" ]
@@ -19,7 +19,7 @@ command="$1"
 exit=1
 while [[ "$exit" -gt 0 ]]
 do 
-	exit=$(axiom-exec "ps cax | pgrep "$command" | wc -l | awk '{ print \$1 }'" "$instance" -q)
+	exit=$(axiom-exec "ps cax | pgrep ""$command"" | wc -l | awk '{ print \$1 }'" "$instance" -q)
 
 	sleep $(expr $RANDOM % 20)
 done

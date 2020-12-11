@@ -11,12 +11,12 @@ then
 		then
 			echo -e "${BWhite}Archived Boxes${Color_Off}"
 			echo -n -e "${Blue}"
-			ls -lh $AXIOM_PATH/archive/ | sed 's/.tar.gz.gpg//g' | awk '{ print $9 " " $6 " " $7 " " $8 " " $5}' | column -t
+			ls -lh "$AXIOM_PATH"/archive/ | sed 's/.tar.gz.gpg//g' | awk '{ print $9 " " $6 " " $7 " " $8 " " $5}' | column -t
 			echo -n -e "${Color_Off}"
 		else
 			echo -e "${BWhite}Available Backup Boxes${Color_Off}"
 			echo -n -e "${Blue}"
-			ls -lh  $AXIOM_PATH/boxes/ | grep -v "backup-files.txt" | awk '{ print $9 " " $6 " " $7 " " $8 " " $5}' | column -t
+			ls -lh  "$AXIOM_PATH"/boxes/ | grep -v "backup-files.txt" | awk '{ print $9 " " $6 " " $7 " " $8 " " $5}' | column -t
 			echo -n -e "${Color_Off}"
 		fi
 		;;
@@ -28,7 +28,7 @@ then
 			echo -e "${BWhite}Changing directory to box '$2'...${Color_Off}"
 		
 			cd "${box_path}"
-			exec $SHELL
+			exec "$SHELL"
 		else
 			echo -e  "${BRed}Box doesn't exist${Color_Off}"
 		fi
@@ -52,8 +52,8 @@ then
 		then
 			echo -e "${BWhite}Creating box '$2'...${Color_Off}"
 			mkdir -p "$box_path/work"
-            cp $AXIOM_PATH/configs/oh-my-zsh.tar.gz $box_path/.oh-my-zsh.tar.gz
-            cd $box_path/ && tar -xf .oh-my-zsh.tar.gz
+            cp "$AXIOM_PATH"/configs/oh-my-zsh.tar.gz "$box_path"/.oh-my-zsh.tar.gz
+            cd "$box_path"/ && tar -xf .oh-my-zsh.tar.gz
 		else
 			echo -e "${BRed}Box already exists${Color_Off}"
 		fi
@@ -64,25 +64,25 @@ then
 		if [ -d "$box_path" ]
 		then
 			echo -e "${BWhite}Coping box '$2' to '$3'${Color_Off}"
-			cp -r $box_path "$AXIOM_PATH/boxes/$3"
+			cp -r "$box_path" "$AXIOM_PATH/boxes/$3"
 		fi
 		;;
 	get*)
 		repo="https://github.com/$2.git"
-		box=$(echo $2 | sed 's/\//-/g')
+		box=$(echo "$2" | sed 's/\//-/g')
 		echo -e "${BWhite}Cloning box: $2${Color_Off}"
         clone_path="$AXIOM_PATH/boxes/$box"
 
-        if [ ! -d $clone_path ]
+        if [ ! -d "$clone_path" ]
         then
-		    git clone $repo $clone_path
+		    git clone "$repo" "$clone_path"
         else
-            cd $clone_path && git pull 
+            cd "$clone_path" && git pull 
         fi
         ;;
     update*)
-		box=$(echo $2 | sed 's/\//-/g')
-        cd $AXIOM_PATH/$box && git pull 
+		box=$(echo "$2" | sed 's/\//-/g')
+        cd "$AXIOM_PATH"/"$box" && git pull 
         ;;
     import*)
 		url="$2"
@@ -90,16 +90,16 @@ then
 		then
 			echo -e "${BWhite}Downloading '$url'...${Color_Off}"
 			filename=$(echo "$url" | sed 's/\// /g' | awk '{ print $NF }')
-			new_filename=$(echo $filename | sed 's/.gpg//g')
-			box=$(echo $new_filename | sed 's/.tar.gz//g')
+			new_filename=$(echo "$filename" | sed 's/.gpg//g')
+			box=$(echo "$new_filename" | sed 's/.tar.gz//g')
 			wget -O "/tmp/$filename" "$url"
 			cd /tmp/
-			gpg -o $new_filename -d $filename 
-			mv /tmp/$new_filename $AXIOM_PATH/boxes/$new_filename
-			rm /tmp/$filename
-			cd $AXIOM_PATH/boxes/
-			tar -xf $new_filename
-			rm $new_filename
+			gpg -o "$new_filename" -d "$filename" 
+			mv /tmp/"$new_filename" "$AXIOM_PATH"/boxes/"$new_filename"
+			rm /tmp/"$filename"
+			cd "$AXIOM_PATH"/boxes/
+			tar -xf "$new_filename"
+			rm "$new_filename"
 			echo -e "${BGreen}Box '$box'  successfully imported.${Color_Off}"
 		else 
 			echo -e "${BRed}Please supply a URL to import... axiom-boxes import https://example.com/box.tar.gz.gpg${Color_off}"
@@ -128,7 +128,7 @@ then
 			email="$recipient"
 			echo "Using email '$email'"
 		else
-			email="$(cat $AXIOM_PATH/axiom.json |  jq -r '.email?')"
+			email="$(cat "$AXIOM_PATH"/axiom.json |  jq -r '.email?')"
 		fi
 
 		if [[ "$email" != "null" ]]
@@ -137,9 +137,9 @@ then
 			if [ -d "$AXIOM_PATH/boxes/$box/" ]
 			then
 				echo -e "${BWhite}Archiving $box...${Color_Off}${Blue}"
-				cd $AXIOM_PATH/boxes/
-				tar -czf "$box.tar.gz" $box
-				rm -rf $box
+				cd "$AXIOM_PATH"/boxes/
+				tar -czf "$box.tar.gz" "$box"
+				rm -rf "$box"
 				gpg -r "$email" -e "$box.tar.gz"
 				rm "$box.tar.gz"
 				mv "$box.tar.gz.gpg" "$AXIOM_PATH/archive/"
@@ -171,13 +171,13 @@ then
 					email=$(gpg --list-secret-keys | grep uid | tail -n1 |  grep -E -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
 					echo -e "${Blue}Generated key for $email!${Color_Off}"
 					echo -e "${Blue}Please try the archive feature again now!${Color_Off}"
-					cat $AXIOM_PATH/axiom.json | jq -r ".email |= \"$email\"" | jq > $AXIOM_PATH/axiom.json.new
-					mv $AXIOM_PATH/axiom.json.new $AXIOM_PATH/axiom.json
+					cat "$AXIOM_PATH"/axiom.json | jq -r ".email |= \"$email\"" | jq > "$AXIOM_PATH"/axiom.json.new
+					mv "$AXIOM_PATH"/axiom.json.new "$AXIOM_PATH"/axiom.json
 				elif [[ "$option" -eq 2 ]]
 				then
 					echo -e -n "${Blue}Please enter your GPG recipient email: ${Color_Off}"
 					read email
-					cat $AXIOM_PATH/axiom.json | jq -r ".email |= \"$email\"" | jq
+					cat "$AXIOM_PATH"/axiom.json | jq -r ".email |= \"$email\"" | jq
 				fi
 			fi
 		fi
@@ -188,7 +188,7 @@ then
 		echo -e "${BWhite}Unarchiving $box...${Color_Off}${Blue}"
 		if [ -f "$AXIOM_PATH/archive/$box.tar.gz.gpg" ]
 		then
-			cd $AXIOM_PATH/archive/
+			cd "$AXIOM_PATH"/archive/
 			gpg -o "$box.tar.gz" -d "$box.tar.gz.gpg"
 			rm "$box.tar.gz.gpg"
 			tar -xf "$box.tar.gz"

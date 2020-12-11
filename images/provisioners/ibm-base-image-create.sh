@@ -5,10 +5,10 @@ AXIOM_PATH="$HOME/.axiom"
 if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
 echo -e "Detected SSH public key, would you like me to install this for your axiom setup? y/n"
 		read ans
-		if [ $ans == "n" ]; then
+		if [ "$ans" == "n" ]; then
 			echo -e "Would you like to generate a fresh pair? y/n"
 			read ans
-			if [ $ans == "y" ]; then
+			if [ "$ans" == "y" ]; then
 				ssh-keygen -b 2048 -t rsa -q -N ""
 			else
 				echo -e "Need to provide SSH public key. Exiting..."
@@ -19,7 +19,7 @@ echo -e "Detected SSH public key, would you like me to install this for your axi
 else
 	echo -e "No SSH public key detected, would you like to generate a fresh pair? y/n"
 	read ans
-	if [ $ans == "y" ]; then
+	if [ "$ans" == "y" ]; then
 		ssh-keygen -b 2048 -t rsa -q -N ""
 	else
 			echo -e "$Need to provide SSH public key. Exiting..."
@@ -41,13 +41,13 @@ echo "/n"
 echo "Uploading SSH key"
 echo "SSH Key ID $sshkeyid"; # ssh key id
 echo "Creating Ubuntu 18.04 Base VSI";
-id=$(echo "Y"| ibmcloud sl vs create -H $axiomhostname -D axiom.local -c 2 -m 4096 -d dal13 -o UBUNTU_18_64 --disk 100 -k $sshkeyid | grep -s "^ID" | tr -s " " | cut -d " " -f 2 ); # create axiom base image with sshkey
+id=$(echo "Y"| ibmcloud sl vs create -H $axiomhostname -D axiom.local -c 2 -m 4096 -d dal13 -o UBUNTU_18_64 --disk 100 -k "$sshkeyid" | grep -s "^ID" | tr -s " " | cut -d " " -f 2 ); # create axiom base image with sshkey
 echo "Base IBM Cloud Server ID is $id";
 sleep 10
 amiactive="1"
 while true
-	amiactive=$(ibmcloud sl vs detail $id -output json | jq ".activeTransaction | {transactionStatus}" | jq '.[]' | jq '.name // empty')
-        do echo "Waiting for server to initialize. Current phase: "$amiactive"";
+	amiactive=$(ibmcloud sl vs detail "$id" -output json | jq ".activeTransaction | {transactionStatus}" | jq '.[]' | jq '.name // empty')
+        do echo "Waiting for server to initialize. Current phase: ""$amiactive""";
 	if [ "$amiactive" == "" ]; then
 		break
 	fi
@@ -55,10 +55,10 @@ while true
 done;
 sleep 10
 echo "Upgrading Ubuntu 18.04 to Ubuntu 20.04... multiple reboots ahead";
-imageip=$(ibmcloud sl vs detail $id -output json | jq '.primaryIpAddress' | tr -d '"'); # Get VSI Public Address
+imageip=$(ibmcloud sl vs detail "$id" -output json | jq '.primaryIpAddress' | tr -d '"'); # Get VSI Public Address
 
 for run in {1..2}; do # loop to upgrade ubuntu 18.04 to 20.04
-  ssh -T -o "StrictHostKeyChecking=no" -l root $imageip << EOF
+  ssh -T -o "StrictHostKeyChecking=no" -l root "$imageip" << EOF
     sudo apt-get update && sudo apt-get dist-upgrade -y && sudo dpkg --configure -a sudo apt-get clean; # clean up after errors
     sudo do-release-upgrade -f DistUpgradeViewNonInteractive;
     sudo reboot; # restart machine
@@ -69,9 +69,9 @@ done;
 
 echo "Waiting for Ubuntu 20.04 image to create";
 sleep 120;
-ibmcloud sl vs capture $id -n $id --all; # create Image from VSI
+ibmcloud sl vs capture "$id" -n "$id" --all; # create Image from VSI
 echo " Canceling Ubuntu 18.04 base-image"
-ibmcloud sl vs cancel $id
-imageid=$(ibmcloud sl image list --private | grep $id | cut -d " " -f 1);
+ibmcloud sl vs cancel "$id"
+imageid=$(ibmcloud sl image list --private | grep "$id" | cut -d " " -f 1);
 echo "Finished! Make sure to copy global_identifier of newly created image";
-ibmcloud sl image detail $imageid;
+ibmcloud sl image detail "$imageid";

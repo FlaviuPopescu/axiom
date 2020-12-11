@@ -23,7 +23,7 @@ for var in "$@"; do
 	fi
 done
 
-selected=$(query_instances $query)
+selected=$(query_instances "$query")
 
 if [[ "$selected" ]]
 then
